@@ -30,7 +30,7 @@ async def _create_account(short_name: Optional[str]=None,
 
 
 async def cmd_create_account(message: types.Message, state: FSMContext):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     default = types.KeyboardButton('По умолчанию')
     change = types.KeyboardButton('Изменить')
     keyboard.add(default, change)
@@ -52,23 +52,20 @@ async def default_account(message: types.Message, state: FSMContext):
     )
     user = await UserDB(message.from_user.id).connect()
     await user.set_telegraph_token(token)
-    await user.update()
+    await user.insert()
     await state.finish()
-    await message.reply(
-        'Отлично!',
-        reply_markup=types.ReplyKeyboardRemove
-    )
     await send_url(message, url)
 
 
-async def send_url(message, url):
+async def send_url(message: types.Message, url):
     create_article = types.InlineKeyboardButton(
         text='Перейти в telegraph',
         url=url
     )
     keyboard = types.InlineKeyboardMarkup().add(create_article)
     await message.reply(
-        'Аккаунт создан', 
+        'Аккаунт создан\n'+
+        'Переключиться на него можно в меню\n /my_accounts', 
         reply_markup=keyboard, 
         disable_web_page_preview=True, 
         protect_content=True
@@ -77,14 +74,21 @@ async def send_url(message, url):
 
 # What to change? Changing State
 async def changing(message: types.Message, state: FSMContext):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=1)
     ShortName = types.KeyboardButton('Короткое имя')
     AuthorName = types.KeyboardButton('Имя автора')
     Url = types.KeyboardButton('Включить ссылку на себя')
     done = types.KeyboardButton('На этом все')
     keyboard.add(ShortName, AuthorName, Url, done)
+    user_data = await state.get_data()
+    sn = user_data.get('shortName', message.from_user.username)
+    an = user_data.get('authorName', message.from_user.full_name)
+    url = user_data.get('Url', '<i>Без ссылки на себя</i>')
     await message.answer(
-        'Что изменить?',
+        'Что изменить?\n'+
+        f'<i>Короткое имя:</i> {sn}\n'+
+        f'<i>Имя автора:</i> {an}\n'+
+        url,
         reply_markup=keyboard
     )
     await state.set_state(CreateArticle.Changing.state)
@@ -121,6 +125,8 @@ async def set_url(message: types.Message, state: FSMContext):
     await message.answer(
         'Ссылка включена'
     )
+    await state.update_data(Url='<i>С ссылкой на себя</i>')
+    await state.update_data(authorUrl=f'https://t.me/{message.from_user.username}')
     await state.set_state(CreateArticle.Changing.state)
     await changing(message, state)
 
@@ -135,12 +141,8 @@ async def done(message: types.Message, state: FSMContext):
     )
     user = await UserDB(message.from_user.id).connect()
     await user.set_telegraph_token(token)
-    await user.update()
+    await user.insert()
     await state.finish()
-    await message.reply(
-        'Отлично!',
-        reply_markup=types.ReplyKeyboardRemove
-    )
     await send_url(message, url)
 
 
