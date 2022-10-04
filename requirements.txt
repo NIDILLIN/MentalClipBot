@@ -1,0 +1,4 @@
+aiogram==2.22.2
+telegraph==2.1.0
+httpx==0.23.0
+aiosqlite==0.17.0
