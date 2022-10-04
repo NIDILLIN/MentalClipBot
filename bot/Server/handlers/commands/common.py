@@ -6,7 +6,7 @@ from aiogram.dispatcher import FSMContext
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.finish()
     await message.answer(
-        "Я -- бот для заметок! У меня ты можешь создавать любые заметки, класть их в папки, давать им тэги, прикреплять фото и т.д.",
+        "Я бот для заметок! У меня ты можешь создавать любые заметки, класть их в папки, давать им тэги, прикреплять фото и т.д.",
         reply_markup=types.ReplyKeyboardRemove()
     )
 
