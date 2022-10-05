@@ -33,9 +33,7 @@ async def cmd_create_account(message: types.Message, state: FSMContext):
     user = await UserDB(message.from_user.id).connect()
     accs = await user.tokens.select_names()
     if len(accs) == 10:
-        message.answer(
-            'Создать более 10 аккаунтов нельзя'
-        )
+        message.answer('Создать более 10 аккаунтов нельзя')
         return
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     default = types.KeyboardButton('По умолчанию')
@@ -57,9 +55,10 @@ async def default_account(message: types.Message, state: FSMContext):
     user = await UserDB(message.from_user.id).connect()
     accs = await user.tokens.select_names()
     if len(accs) == 10:
-        message.answer(
-            'Создать более 10 аккаунтов нельзя'
-        )
+        await message.answer('Создать более 10 аккаунтов нельзя')
+        return
+    if message.from_user.username in accs:
+        await message.answer('Создать аккаунт с таким же именем нельзя')
         return
     token, url = await _create_account(
         short_name=message.from_user.username
@@ -67,6 +66,7 @@ async def default_account(message: types.Message, state: FSMContext):
     user.tokens.token = token
     user.tokens.short_name = message.from_user.username
     await user.tokens.insert()
+    await user.tokens.set_current_acc(user.tokens.short_name)
     await state.finish()
     await send_url(message, url)
 
@@ -79,7 +79,7 @@ async def send_url(message: types.Message, url):
     keyboard = types.InlineKeyboardMarkup().add(create_article)
     await message.reply(
         'Аккаунт создан\n'+
-        'Переключиться на него можно в меню\n /my_accounts', 
+        'Переключиться на него можно в меню\n/my_accounts', 
         reply_markup=keyboard, 
         disable_web_page_preview=True, 
         protect_content=True
@@ -157,6 +157,7 @@ async def done(message: types.Message, state: FSMContext):
     user.tokens.token = token
     user.tokens.short_name = user_data.get('shortName', message.from_user.username)
     await user.tokens.insert()
+    await user.tokens.set_current_acc(user.tokens.short_name)
     await state.finish()
     await send_url(message, url)
 
