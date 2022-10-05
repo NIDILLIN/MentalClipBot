@@ -30,6 +30,13 @@ async def _create_account(short_name: Optional[str]=None,
 
 
 async def cmd_create_account(message: types.Message, state: FSMContext):
+    user = await UserDB(message.from_user.id).connect()
+    accs = await user.tokens.select_names()
+    if len(accs) == 10:
+        message.answer(
+            'Создать более 10 аккаунтов нельзя'
+        )
+        return
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     default = types.KeyboardButton('По умолчанию')
     change = types.KeyboardButton('Изменить')
@@ -47,10 +54,16 @@ async def cmd_create_account(message: types.Message, state: FSMContext):
 
 # Default choice
 async def default_account(message: types.Message, state: FSMContext):
+    user = await UserDB(message.from_user.id).connect()
+    accs = await user.tokens.select_names()
+    if len(accs) == 10:
+        message.answer(
+            'Создать более 10 аккаунтов нельзя'
+        )
+        return
     token, url = await _create_account(
         short_name=message.from_user.username
     )
-    user = await UserDB(message.from_user.id).connect()
     user.tokens.token = token
     user.tokens.short_name = message.from_user.username
     await user.tokens.insert()
