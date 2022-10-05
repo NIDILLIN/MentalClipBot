@@ -1,2 +1,3 @@
 from Server.handlers.commands.article.article import register_article_creating
 from Server.handlers.commands.article.new_account import register_creating_telegraph_acc
+from Server.handlers.commands.article.my_accounts import register_my_accounts
