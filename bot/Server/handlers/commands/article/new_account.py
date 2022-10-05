@@ -51,8 +51,9 @@ async def default_account(message: types.Message, state: FSMContext):
         short_name=message.from_user.username
     )
     user = await UserDB(message.from_user.id).connect()
-    await user.set_telegraph_token(token)
-    await user.insert()
+    user.tokens.token = token
+    user.tokens.short_name = message.from_user.username
+    await user.tokens.insert()
     await state.finish()
     await send_url(message, url)
 
@@ -140,8 +141,9 @@ async def done(message: types.Message, state: FSMContext):
         author_url=user_data.get('authorUrl', None)
     )
     user = await UserDB(message.from_user.id).connect()
-    await user.set_telegraph_token(token)
-    await user.insert()
+    user.tokens.token = token
+    user.tokens.short_name = user_data.get('shortName', message.from_user.username)
+    await user.tokens.insert()
     await state.finish()
     await send_url(message, url)
 
