@@ -2,9 +2,18 @@ from typing import Optional, Union
 import aiosqlite
 import asyncio
 from Server.db.tables import *
+# from tables import *
+
+class Singleton():
+    _instances = {}
+
+    def __new__(cls):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__new__(cls)
+        return cls._instances[cls]
 
 
-class UserDB():
+class UserDB(Singleton):
     user_id: int
 
 
@@ -27,7 +36,7 @@ class UserDB():
 
     async def create_tables(self):
         await self.db.execute(
-            """CREATE TABLE IF NOT EXISTS tokens (token STRING, short_name STRING);"""
+            """CREATE TABLE IF NOT EXISTS tokens (token STRING, short_name STRING, current INTEGER);"""
         )
         await self.db.execute(
             """CREATE TABLE IF NOT EXISTS notes (note STRING, class STRING);"""
@@ -40,7 +49,7 @@ class UserDB():
 
 async def main():
     user = await UserDB(1631513712).connect()
-    user.tokens.short_name = 'nidi'
+    user.tokens.short_name = 'nidillin'
     b = await user.tokens.select_names()
     print(b)
 
