@@ -4,20 +4,6 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
-class Note():
-    tag: str
-    text: str
-
-    def __init__(self, message: Message, tag: str, text: str) -> None:
-        self.msg = message
-        self.tag = tag
-        self.text = text
-
-    async def send(self) -> None:
-        msg = self.tag + '\n\n' + self.text
-        await self.msg.answer(msg)
-
-
 class AddNote(StatesGroup):
     note = State('note')
     tag = State('tag')

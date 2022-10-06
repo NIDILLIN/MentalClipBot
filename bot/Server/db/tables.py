@@ -129,3 +129,17 @@ class Notes(Table):
             f'UPDATE tokens SET {col}={value} where note={self.note}'
         )
         await self.db.commit()
+
+    async def get_notes_count(self) -> int:
+        cursor = await self.db.execute(
+            f'SELECT note FROM notes'
+        )
+        notes = await cursor.fetchall()
+        return len(notes) if notes else 0
+
+    async def get_groups_count(self) -> int:
+        cursor = await self.db.execute(
+            f'SELECT class FROM notes'
+        )
+        groups = await cursor.fetchall()
+        return len(groups) if groups else 0
