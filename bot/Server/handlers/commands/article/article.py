@@ -27,7 +27,10 @@ async def cmd_my_articles(message: types.Message):
     user = await UserDB(message.from_user.id).connect()
     token = await user.tokens.get_current_token()
     account = await user.tokens.get_current_acc()
-    pages = await telegraph_requests.get_pages_count(token)
+    if not token:
+        pages = 0
+    else:
+        pages = await telegraph_requests.get_pages_count(token)
     if pages == 0:
         await message.answer(f'Нет статей для текущего аккаунта ({account})')
         return
