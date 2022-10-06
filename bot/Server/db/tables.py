@@ -16,30 +16,65 @@ class Table():
 
 class Articles(Table):
     title: str = 'none'
-    description: str = 'none'
-    url: str = 'none'
+    path: str = 'none'
     group: str = 'none'
 
     @dataclass(frozen=True)
     class Column():
-        title = 'title'
-        description = 'description'
-        url = 'url'
+        path = 'path'
         group = 'group'
 
 
     async def insert(self):
         await self.db.execute(
-            f'INSERT INTO articles VALUES (?, ?, ?, ?)', 
-            (self.title, self.description, self.url, self.group)
+            f'INSERT INTO articles VALUES (?, ?, ?)', 
+            (self.title, self.path, self.group)
         )
         await self.db.commit()
 
-    async def update(self, col: str, value: str):
+    async def insert_by(self, title, path, group):
         await self.db.execute(
-            f'UPDATE articles SET {col}={value} where title={self.title}'
+            'INSERT INTO articles VALUES (?, ?, ?)', 
+            (title, path, group)
         )
         await self.db.commit()
+
+    async def update_group(self, title: str, new_group: str, path: str):
+        try:
+            await self.db.execute(
+                f'DELETE FROM articles WHERE path=?', (path, )
+            )
+            await self.insert_by(title, path, new_group)
+            await self.db.commit()
+        except Exception as e:
+            print(e)
+        
+    async def get_article_group(self, path: str) -> str:
+        try:
+            cursor = await self.db.execute(
+                f"""SELECT class FROM articles where path=\'{path}\'"""
+            )
+            names = await cursor.fetchone()
+            name = names[0] if names else None
+            return name
+        except:
+            return None
+
+    async def select_groups(self):
+        cursor = await self.db.execute(
+            f'SELECT class FROM articles'
+        )
+        names = await cursor.fetchall()
+        names = [name[0] for name in names]
+        return names
+
+    async def get_articles_for_group(self, group: str):
+        cursor = await self.db.execute(
+            f"""SELECT title, path FROM articles where class='{group}'"""
+        )
+        names = await cursor.fetchall()
+        names = {name[0]: name[1] for name in names}
+        return names
 
 
 class Tokens(Table):

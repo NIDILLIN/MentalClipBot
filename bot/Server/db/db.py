@@ -41,7 +41,7 @@ class UserDB(metaclass=Singleton):
             """CREATE TABLE IF NOT EXISTS notes (note STRING, class STRING);"""
         )
         await self.db.execute(
-            """CREATE TABLE IF NOT EXISTS articles (title STRING, description TEXT, url STRING, class STRING);"""
+            """CREATE TABLE IF NOT EXISTS articles (title STRING, path STRING, class STRING);"""
         )
         await self.db.commit()
 
