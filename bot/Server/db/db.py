@@ -1,18 +1,12 @@
 from typing import Optional, Union
 import aiosqlite
+import sqlite3
 import asyncio
 from Server.db.tables import *
 # from tables import *
 
-class Singleton(type):
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
 
-
-class UserDB(metaclass=Singleton):
+class UserDB():
     user_id: int
 
 
@@ -32,6 +26,12 @@ class UserDB(metaclass=Singleton):
         await self.create_tables()
         await self.start()
         return self
+
+    async def close(self):
+        await self.tokens._close()
+        await self.notes._close()
+        await self.articles._close()
+        await self.db.close()
 
     async def create_tables(self):
         await self.db.execute(

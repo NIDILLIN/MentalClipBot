@@ -6,6 +6,9 @@ import aiosqlite
 class Table():
     async def _connect(self, user_id):
         self.db = await aiosqlite.connect(database=f'C:/Users/write/Desktop/MentalClipBot/db/{user_id}.db')
+
+    async def _close(self):
+        await self.db.close()
         
     async def _start(self, user_id):
         await self._connect(user_id)
