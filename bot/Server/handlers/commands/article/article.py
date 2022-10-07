@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram import types
 from aiogram.utils.callback_data import CallbackData
 from aiogram.dispatcher.filters import Text
-import Server.handlers.commands.article.telegraph_requests as telegraph_requests
+from Server.handlers.commands.article.telegraph_requests import telegraphSession
 from Server.handlers.commands.groups.adding_to_group import group
 from Server.types import Article
 from Server.db.db import UserDB
@@ -30,11 +30,11 @@ async def cmd_my_articles(message: types.Message):
     if not token:
         pages = 0
     else:
-        pages = await telegraph_requests.get_pages_count(token)
+        pages = await telegraphSession.get_pages_count(token)
     if pages == 0:
         await message.answer(f'Нет статей для текущего аккаунта ({account})')
         return
-    pages_list = await telegraph_requests.get_pages_list(token)
+    pages_list = await telegraphSession.get_pages_list(token)
     articles_list = types.InlineKeyboardMarkup(row_width=1)
     buttons = []
     for page in pages_list:
@@ -54,13 +54,13 @@ async def cmd_my_articles(message: types.Message):
 async def articles(call: types.CallbackQuery):
     user = await UserDB(call.from_user.id).connect()
     token = await user.tokens.get_current_token()
-    pages = await telegraph_requests.get_pages_count(token)
+    pages = await telegraphSession.get_pages_count(token)
     if pages == 0:
         await call.message.answer(f'Нет статей для текущего аккаунта ({account})')
         await call.answer()
         return
     account = await user.tokens.get_current_acc()
-    pages_list = await telegraph_requests.get_pages_list(token)
+    pages_list = await telegraphSession.get_pages_list(token)
     articles_list = types.InlineKeyboardMarkup(row_width=1)
     buttons = []
     for page in pages_list:
@@ -80,7 +80,7 @@ async def articles(call: types.CallbackQuery):
 
 async def article(call: types.CallbackQuery, callback_data: dict):
     user = await UserDB(call.from_user.id).connect()
-    page_info = await telegraph_requests.get_page_info(callback_data['path'])
+    page_info = await telegraphSession.get_page_info(callback_data['path'])
     text = await Article(
         title=page_info['title'],
         description=page_info['description'],

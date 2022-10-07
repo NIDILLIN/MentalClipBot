@@ -4,7 +4,9 @@ from aiogram.utils.callback_data import CallbackData
 from Server.handlers.commands.groups.adding_to_group import cb_new_group, group
 from Server.db.db import UserDB
 
+
 cb_article = CallbackData('article', 'path')
+
 
 async def group_for_article(call: types.CallbackQuery, callback_data: dict):
     article_group = callback_data['article_group']

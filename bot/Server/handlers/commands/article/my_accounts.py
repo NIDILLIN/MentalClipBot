@@ -3,7 +3,7 @@ from aiogram import types
 from aiogram.dispatcher.filters import Text
 from aiogram.utils.callback_data import CallbackData
 from Server.db.db import UserDB
-import Server.handlers.commands.article.telegraph_requests as telegraph_requests
+from Server.handlers.commands.article.telegraph_requests import telegraphSession
 
 
 acc = CallbackData('acc', 'short_name')
@@ -24,8 +24,9 @@ async def cmd_my_accounts(message: types.Message):
     buttons = [
         types.InlineKeyboardButton(
             text=name, 
-            callback_data=acc.new(short_name=name)
-        ) for name in accounts]
+            callback_data=acc.new(short_name=name)) 
+        for name in accounts
+    ]
     keyboard = types.InlineKeyboardMarkup(row_width=1).add(*buttons)
     await message.answer(
         'Мои аккаунты\n'+
@@ -62,12 +63,12 @@ async def my_account(call: types.CallbackQuery, callback_data: dict):
     short_name = callback_data['short_name']
     user = await UserDB(call.from_user.id).connect()
     token = await user.tokens.get_by_short_name(short_name)
-    pages = await telegraph_requests.get_pages_count(token)
-    auth_url = await telegraph_requests.get_auth_url(token)
+    pages = await telegraphSession.get_pages_count(token)
+    auth_url = await telegraphSession.get_auth_url(token)
 
     text = f'<b>Аккаунт:</b> {short_name}\n<b>Кол-во статей аккаунта:</b> {pages}'
     log_in = types.InlineKeyboardButton('Войти на этом девайсе', url=auth_url)
-    change_to = types.InlineKeyboardButton('Пееключиться на этот аккаунт', callback_data=log_acc.new(short_name=short_name))
+    change_to = types.InlineKeyboardButton('Переключиться на этот аккаунт', callback_data=log_acc.new(short_name=short_name))
     back = types.InlineKeyboardButton('Назад', callback_data='back_accounts')
     keyboard = types.InlineKeyboardMarkup(row_width=1).add(log_in, change_to, back)
 

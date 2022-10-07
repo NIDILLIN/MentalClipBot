@@ -25,7 +25,9 @@ async def _create_account(short_name: Optional[str]=None,
         tuple[str, str]: access_token, auth_url
     """
     telegraph = Telegraph()
-    response = await telegraph.create_account(short_name=short_name, author_name=author_name, author_url=author_url)
+    response = await telegraph.create_account(short_name=short_name, 
+                                              author_name=author_name, 
+                                              author_url=author_url)
     return response['access_token'], response['auth_url']
 
 

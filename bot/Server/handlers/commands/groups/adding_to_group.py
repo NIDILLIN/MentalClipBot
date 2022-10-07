@@ -3,7 +3,7 @@ from aiogram import types
 from aiogram.utils.callback_data import CallbackData
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-import Server.handlers.commands.article.telegraph_requests as telegraph_requests
+from Server.handlers.commands.article.telegraph_requests import telegraphSession
 from Server.db.db import UserDB
 
 cb_article = CallbackData('article', 'path')
@@ -19,7 +19,7 @@ class AddingGroup(StatesGroup):
 
 async def new_group(call: types.CallbackQuery, state: FSMContext, callback_data: dict):
     page_path = callback_data['path']
-    page_info = await telegraph_requests.get_page_info(page_path)
+    page_info = await telegraphSession.get_page_info(page_path)
     existing = types.InlineKeyboardButton('В существующую', callback_data=cb_adding_group.new(path=page_path, new_group='1'))
     create = types.InlineKeyboardButton('Создать новую', callback_data=2)
     back = types.InlineKeyboardButton('Назад', callback_data=cb_article.new(path=page_path)) 
@@ -54,7 +54,7 @@ async def cb_add_to_existing_group(call: types.CallbackQuery, state: FSMContext,
 
 async def add_to_group(call: types.CallbackQuery, state: FSMContext, callback_data: dict):
     user = await UserDB(call.from_user.id).connect()
-    title = await telegraph_requests.get_page_info(callback_data['path'])
+    title = await telegraphSession.get_page_info(callback_data['path'])
     title = title['title']
     await user.articles.update_group(title, callback_data['new_group'], callback_data['path'])
     await call.message.delete()

@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram import types
 from aiogram.utils.callback_data import CallbackData
 from aiogram.dispatcher.filters import Text
-import Server.handlers.commands.article.telegraph_requests as telegraph_requests
+from Server.handlers.commands.article.telegraph_requests import telegraphSession
 
 from Server.db.db import UserDB
 
@@ -11,7 +11,7 @@ async def cmd_my_profile(message: types.Message):
     user = await UserDB(message.from_user.id).connect()
     account = await user.tokens.get_current_acc()
     token = await user.tokens.get_current_token()
-    pages = await telegraph_requests.get_pages_count(token)
+    pages = await telegraphSession.get_pages_count(token)
     notes = await user.notes.get_notes_count()
     groups = await user.notes.get_groups_count()
     text = (
