@@ -2,6 +2,7 @@ from aiogram import Dispatcher
 from aiogram.types import Message
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from Server.types import Note
 
 
 class AddNote(StatesGroup):
