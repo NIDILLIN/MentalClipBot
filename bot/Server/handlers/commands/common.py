@@ -18,7 +18,14 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
     )
 
 
+async def cmd_section(message: types.Message):
+    await message.reply(
+        'Это просто информативная команда)'
+    )
+
+
 def register_common_cmd(dp: Dispatcher):
     dp.register_message_handler(cmd_start, commands="start", state="*")
     dp.register_message_handler(cmd_cancel, commands="cancel", state="*")
     dp.register_message_handler(cmd_cancel, Text(equals="отмена", ignore_case=True), state="*")
+    dp.register_message_handler(cmd_section, commands=['telegraph_section', 'notes_section'])
