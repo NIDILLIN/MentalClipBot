@@ -25,10 +25,11 @@ class TelegraphSession(metaclass=Singleton):
      
     async def get(self, *keys, method: str, params: Optional[dict]=None) -> Optional[dict]:
         API_URL = 'https://api.telegra.ph/'
+        params = {k: v for k, v in params.items() if v}
         async with aiohttp.ClientSession() as session:
             async with session.get(API_URL+method, params=params, proxy=self._proxy) as resp:
                 result: dict = await resp.json()
-        print(result)
+        
         for key in keys:
             result = result.get(key, 'none')
 
@@ -37,7 +38,7 @@ class TelegraphSession(metaclass=Singleton):
     async def get_pages_count(self, token):
         await self.get(
             'result', 'total_count',
-            method="getPageList?",
+            method="getPageList",
             params={'access_token': token}
         )
         return self._result
@@ -45,7 +46,7 @@ class TelegraphSession(metaclass=Singleton):
     async def get_pages_list(self, token):
         await self.get(
             'result', 'pages',
-            method="getPageList?",
+            method="getPageList",
             params={'access_token': token}
         )
         return self._result
@@ -53,7 +54,7 @@ class TelegraphSession(metaclass=Singleton):
     async def get_auth_url(self, token):
         await self.get(
             'result', 'auth_url',
-            method='getAccountInfo?',
+            method='getAccountInfo',
             params={
                 'access_token': token,
                 'fields': '["auth_url"]'
@@ -68,9 +69,24 @@ class TelegraphSession(metaclass=Singleton):
         )
         return self._result
 
+    async def create_account(self, 
+                            short_name: Optional[str], 
+                            author_name: Optional[str]=None, 
+                            author_url: Optional[str]=None):
+        await self.get(
+            'result',
+            method='createAccount',
+            params={
+                'short_name': short_name,
+                'author_name': author_name,
+                'author_url': author_url
+            }
+        )
+        return self._result
+
     @property 
     def result(self):
         return self._result
 
 
-telegraphSession = TelegraphSession(proxy=PROXY)
+telegraphSession = TelegraphSession()

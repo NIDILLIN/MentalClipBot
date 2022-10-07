@@ -4,8 +4,8 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
-from telegraph.aio import Telegraph
 from Server.db.db import UserDB
+from Server.handlers.commands.article.telegraph_requests import telegraphSession
 
 
 class CreateArticle(StatesGroup):
@@ -24,10 +24,12 @@ async def _create_account(short_name: Optional[str]=None,
     Returns:
         tuple[str, str]: access_token, auth_url
     """
-    telegraph = Telegraph()
-    response = await telegraph.create_account(short_name=short_name, 
-                                              author_name=author_name, 
-                                              author_url=author_url)
+    response = await telegraphSession.create_account(
+        short_name=short_name, 
+        author_name=author_name, 
+        author_url=author_url
+    )
+
     return response['access_token'], response['auth_url']
 
 
