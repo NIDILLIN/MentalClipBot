@@ -23,6 +23,7 @@ async def group_for_article(call: types.CallbackQuery, callback_data: dict):
         return
     user = await UserDB(call.from_user.id).connect()
     group_articles = await user.articles.get_articles_for_group(article_group)
+    await user.close()
     buttons = []
     for title, path in group_articles.items():
         buttons.append(
@@ -45,6 +46,7 @@ async def group_for_article(call: types.CallbackQuery, callback_data: dict):
 async def cmd_groups(message: types.Message):
     user = await UserDB(message.from_user.id).connect()
     groups = await user.articles.select_groups()
+    await user.close()
     buttons = []
     for gr in groups:
         buttons.append(

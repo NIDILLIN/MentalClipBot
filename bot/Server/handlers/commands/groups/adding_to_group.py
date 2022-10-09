@@ -35,6 +35,7 @@ async def new_group(call: types.CallbackQuery, state: FSMContext, callback_data:
 async def cb_add_to_existing_group(call: types.CallbackQuery, state: FSMContext, callback_data: dict):
     user = await UserDB(call.from_user.id).connect()
     groups = await user.articles.select_groups()
+    await user.close()
     buttons = []
     for group in groups:
         buttons.append(
@@ -57,6 +58,7 @@ async def add_to_group(call: types.CallbackQuery, state: FSMContext, callback_da
     title = await telegraphSession.get_page_info(callback_data['path'])
     title = title['title']
     await user.articles.update_group(title, callback_data['new_group'], callback_data['path'])
+    await user.close()
     await call.message.delete()
     await state.finish()
     await call.answer(f"Статья добавлена в группу {callback_data['new_group']}", show_alert=True)

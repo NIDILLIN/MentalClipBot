@@ -14,6 +14,7 @@ async def cmd_my_accounts(message: types.Message):
     user = await UserDB(message.from_user.id).connect()
     accounts = await user.tokens.select_names()
     current_acc = await user.tokens.get_current_acc()
+    await user.close()
     if not current_acc:
         current_acc = 'не установлен'
     if not accounts:
@@ -50,6 +51,7 @@ async def my_accounts(call: types.CallbackQuery):
         ) for name in accounts]
     keyboard = types.InlineKeyboardMarkup(row_width=1).add(*buttons)
     current_acc = await user.tokens.get_current_acc()
+    await user.close()
     if not current_acc:
         current_acc = 'не установлен'
     await call.message.edit_text(
@@ -57,6 +59,7 @@ async def my_accounts(call: types.CallbackQuery):
         f'Текущий: {current_acc}',
         reply_markup=keyboard
     )
+    call.answer()
 
 
 async def my_account(call: types.CallbackQuery, callback_data: dict):
@@ -65,6 +68,7 @@ async def my_account(call: types.CallbackQuery, callback_data: dict):
     token = await user.tokens.get_by_short_name(short_name)
     pages = await telegraphSession.get_pages_count(token)
     auth_url = await telegraphSession.get_auth_url(token)
+    await user.close()
 
     text = f'<b>Аккаунт:</b> {short_name}\n<b>Кол-во статей аккаунта:</b> {pages}'
     log_in = types.InlineKeyboardButton('Войти на этом девайсе', url=auth_url)
@@ -82,6 +86,7 @@ async def my_account(call: types.CallbackQuery, callback_data: dict):
 async def set_current_acc(call: types.CallbackQuery, callback_data: dict):
     user = await UserDB(call.from_user.id).connect()
     await user.tokens.set_current_acc(callback_data['short_name'])
+    await user.close()
     await call.answer('Вы переключились на этот аккаунт', show_alert=True)
 
 

@@ -27,6 +27,7 @@ async def cmd_my_articles(message: types.Message):
     user = await UserDB(message.from_user.id).connect()
     token = await user.tokens.get_current_token()
     account = await user.tokens.get_current_acc()
+    await user.close()
     if not token:
         pages = 0
     else:
@@ -60,6 +61,7 @@ async def articles(call: types.CallbackQuery):
         await call.answer()
         return
     account = await user.tokens.get_current_acc()
+    await user.close()
     pages_list = await telegraphSession.get_pages_list(token)
     articles_list = types.InlineKeyboardMarkup(row_width=1)
     buttons = []
@@ -87,6 +89,7 @@ async def article(call: types.CallbackQuery, callback_data: dict):
         url=page_info['url']
     ).text()
     article_group = await user.articles.get_article_group(page_info['path'])
+    await user.close()
     if not article_group:
         article_group = "Нет группы"
     back = types.InlineKeyboardButton('Назад', callback_data='back_articles')

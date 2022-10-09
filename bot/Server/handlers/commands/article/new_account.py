@@ -36,6 +36,7 @@ async def _create_account(short_name: Optional[str]=None,
 async def cmd_create_account(message: types.Message, state: FSMContext):
     user = await UserDB(message.from_user.id).connect()
     accs = await user.tokens.select_names()
+    await user.close()
     if len(accs) == 10:
         message.answer('Создать более 10 аккаунтов нельзя')
         return
@@ -71,6 +72,7 @@ async def default_account(message: types.Message, state: FSMContext):
     user.tokens.short_name = message.from_user.username
     await user.tokens.insert()
     await user.tokens.set_current_acc(user.tokens.short_name)
+    await user.close()
     await state.finish()
     await send_url(message, url)
 
@@ -162,6 +164,7 @@ async def done(message: types.Message, state: FSMContext):
     user.tokens.short_name = user_data.get('shortName', message.from_user.username)
     await user.tokens.insert()
     await user.tokens.set_current_acc(user.tokens.short_name)
+    await user.close()
     await state.finish()
     await send_url(message, url)
 
