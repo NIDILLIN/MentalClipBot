@@ -3,7 +3,7 @@ from Server.exceptions.bot_blocked import reg_block
 from Server.handlers.commands import register_notes, register_common_cmd
 from Server.handlers.commands.article import register_creating_telegraph_acc, register_article_creating, register_my_accounts
 from Server.handlers.commands.article.profile.my_profile import register_my_profile
-# from Server.handlers.fast_note.fast_note import register_fast_note
+from Server.handlers.fast_note.fast_note import register_fast_note
 
 
 async def register_all(dp: Dispatcher):
@@ -17,11 +17,14 @@ async def register_all(dp: Dispatcher):
             types.BotCommand("create_account", "Создать telegraph аккаунт"), 
             types.BotCommand("profile", "Мой профиль"),
             types.BotCommand("notes_section", "СЕКЦИЯ ЗАМЕТОК"),
+            types.BotCommand("new_note", "Создать заметку"),
+            types.BotCommand("notes_groups", "Группы заметок"),
         ]
     )
     reg_block(dp)
     register_common_cmd(dp)
     register_notes(dp)
+    register_fast_note(dp)
     register_creating_telegraph_acc(dp)
     register_article_creating(dp)
     register_my_accounts(dp)

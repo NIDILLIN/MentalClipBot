@@ -1,6 +1,5 @@
 from typing import Optional, Union
 import aiosqlite
-import sqlite3
 import asyncio
 from Server.db.tables import *
 # from tables import *
