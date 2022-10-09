@@ -1,8 +1,12 @@
+from typing import Optional
 from aiogram import Dispatcher
 from aiogram.types import Message
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from Server.handlers.commands.common import startState
 from Server.types import Note
+from Server.utils import dumps
+from Server.db.db import UserDB
 
 
 class AddNote(StatesGroup):
@@ -42,11 +46,29 @@ async def empty_tag(message: Message, state: FSMContext) -> None:
     await state.update_data(tag=tag)
     await _send_note(message, state)
     await state.finish()
+    await state.set_state(startState.state)
 
 
 async def _send_note(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
-    await Note(message, data['tag'], data['text']).send()
+    get = lambda x: data.get(x, None)
+    note = Note(
+        get('tag'), 
+        get('text'),
+        get('photo'),
+        get('document')
+    )
+    await _save_note(message.from_user.id, note, get('group'))
+    message.answer(
+        text=note['tagged_text']
+    )
+
+
+async def _save_note(user_id: int, note: Note, group: Optional[str]=None):
+    user = await UserDB(user_id).connect()
+    d_note = dumps(note)
+    await user.notes.insert(d_note, group)
+    await user.close()
 
 
 # async def add_photo(message: Message, state: FSMContext) -> None:
