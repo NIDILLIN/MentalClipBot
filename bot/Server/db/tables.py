@@ -5,7 +5,7 @@ import aiosqlite
 
 class Table():
     async def _connect(self, user_id):
-        self.db = await aiosqlite.connect(database=f'C:/Users/write/Desktop/MentalClipBot/db/{user_id}.db')
+        self.db = await aiosqlite.connect(database=f'../db/{user_id}.db')
 
     async def _close(self):
         await self.db.close()
@@ -143,41 +143,3 @@ class Tokens(Table):
             f'UPDATE tokens SET current=1 WHERE short_name=?', (short_name, )
         )
         await self.db.commit()
-
-
-class Notes(Table):
-    note: str = 'none'
-    group: str = 'none'
-
-    @dataclass(frozen=True)
-    class Column():
-        note = 'note'
-        group = 'group'
-
-
-    async def insert(self, note, group):
-        await self.db.execute(
-            f'INSERT INTO notes VALUES (?, ?)', 
-            (note, group)
-        )
-        await self.db.commit()
-
-    async def update(self, col: str, value: str):
-        await self.db.execute(
-            f'UPDATE tokens SET {col}={value} where note={self.note}'
-        )
-        await self.db.commit()
-
-    async def get_notes_count(self) -> int:
-        cursor = await self.db.execute(
-            f'SELECT note FROM notes'
-        )
-        notes = await cursor.fetchall()
-        return len(notes) if notes else 0
-
-    async def get_groups_count(self) -> int:
-        cursor = await self.db.execute(
-            f'SELECT class FROM notes'
-        )
-        groups = await cursor.fetchall()
-        return len(groups) if groups else 0
