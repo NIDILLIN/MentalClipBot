@@ -68,8 +68,8 @@ class Articles(Table):
             f'SELECT class FROM articles'
         )
         names = await cursor.fetchall()
-        names = [name[0] for name in names]
-        return names
+        names = [name[0] for name in names if name[0]]
+        return names if names else None
 
     async def get_articles_for_group(self, group: str):
         cursor = await self.db.execute(

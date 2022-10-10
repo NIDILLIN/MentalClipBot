@@ -1,6 +1,6 @@
 from aiogram import Dispatcher, types
 from Server.exceptions.bot_blocked import reg_block
-from Server.handlers.commands import register_common_cmd
+from Server.handlers.commands.common import register_common_cmd
 from Server.handlers.commands.article import register_creating_telegraph_acc, register_article_creating, register_my_accounts
 from Server.handlers.commands.article.profile.my_profile import register_my_profile
 

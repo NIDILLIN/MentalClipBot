@@ -26,7 +26,6 @@ class UserDB():
 
     async def close(self):
         await self.tokens._close()
-        await self.notes._close()
         await self.articles._close()
         await self.db.close()
 

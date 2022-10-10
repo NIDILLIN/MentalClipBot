@@ -46,6 +46,9 @@ async def group_for_article(call: types.CallbackQuery, callback_data: dict):
 async def cmd_groups(message: types.Message):
     user = await UserDB(message.from_user.id).connect()
     groups = await user.articles.select_groups()
+    if not groups:
+        await message.answer('Нет групп')
+        return
     await user.close()
     buttons = []
     for gr in groups:
