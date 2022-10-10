@@ -155,10 +155,10 @@ class Notes(Table):
         group = 'group'
 
 
-    async def insert(self):
+    async def insert(self, note, group):
         await self.db.execute(
             f'INSERT INTO notes VALUES (?, ?)', 
-            (self.note, self.group)
+            (note, group)
         )
         await self.db.commit()
 
