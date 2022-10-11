@@ -25,7 +25,7 @@ class TelegraphSession(metaclass=Singleton):
      
     async def get(self, *keys, method: str, params: Optional[dict]=None) -> Optional[dict]:
         API_URL = 'https://api.telegra.ph/'
-        params = {k: v for k, v in params.items() if v}
+        if params: params = {k: v for k, v in params.items() if v}
         async with aiohttp.ClientSession() as session:
             async with session.get(API_URL+method, params=params, proxy=self._proxy) as resp:
                 result: dict = await resp.json()
