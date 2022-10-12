@@ -8,6 +8,7 @@ from Server.handlers.commands.article.telegraph_requests import telegraphSession
 
 acc = CallbackData('acc', 'short_name')
 log_acc = CallbackData('log', 'short_name')
+cb_settings = CallbackData('set', 'short_name')
 
 
 async def cmd_my_accounts(message: types.Message):
@@ -73,6 +74,7 @@ async def my_account(call: types.CallbackQuery, callback_data: dict):
     text = f'<b>Аккаунт:</b> {short_name}\n<b>Кол-во статей аккаунта:</b> {pages}'
     log_in = types.InlineKeyboardButton('Войти на этом девайсе', url=auth_url)
     change_to = types.InlineKeyboardButton('Переключиться на этот аккаунт', callback_data=log_acc.new(short_name=short_name))
+    settings = types.InlineKeyboardButton('Настройки', callback_data=cb_settings.new(short_name=short_name))
     back = types.InlineKeyboardButton('Назад', callback_data='back_accounts')
     keyboard = types.InlineKeyboardMarkup(row_width=1).add(log_in, change_to, back)
 
@@ -81,6 +83,16 @@ async def my_account(call: types.CallbackQuery, callback_data: dict):
         reply_markup=keyboard
     )
     await call.answer()
+
+
+async def settings(call: types.CallbackQuery, callback_data: dict):
+    name = callback_data['short_name']
+    user = UserDB(call.from_user.id)
+    token = user.token.by_name(name)
+    """
+    user.token returns list of all user tokens if no filter
+    filter is a method of object that .token returns
+    """
 
 
 async def set_current_acc(call: types.CallbackQuery, callback_data: dict):
@@ -95,3 +107,4 @@ def register_my_accounts(dp: Dispatcher):
     dp.register_callback_query_handler(my_account, acc.filter())
     dp.register_callback_query_handler(my_accounts, Text('back_accounts'))
     dp.register_callback_query_handler(set_current_acc, log_acc.filter())
+    dp.register_callback_query_handler(settings, cb_settings.filter())
